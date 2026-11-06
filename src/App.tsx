@@ -419,6 +419,7 @@ export default function App() {
             }}
             onOpenGitHubModal={() => setIsGitHubOpen(true)}
             onResetData={handleResetData}
+            onDeleteGroup={handleDeleteGroup}
           />
         </div>
 

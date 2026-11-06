@@ -11,7 +11,8 @@ import {
   RotateCcw, 
   GitBranch, 
   Receipt,
-  Layers
+  Layers,
+  Trash2
 } from 'lucide-react';
 import { Group } from '../types/index.ts';
 import { formatCurrency } from '../utils/splitLogic.ts';
@@ -26,6 +27,7 @@ interface SidebarProps {
   onOpenJoinModal: () => void;
   onOpenGitHubModal: () => void;
   onResetData: () => void;
+  onDeleteGroup?: (groupId: string) => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -37,6 +39,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenJoinModal,
   onOpenGitHubModal,
   onResetData,
+  onDeleteGroup,
 }) => {
   const getCategoryIcon = (category: string) => {
     switch (category) {
@@ -183,6 +186,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <RotateCcw className="w-3.5 h-3.5" />
           <span>Reset Demo Data</span>
         </button>
+
+        {activeGroup && onDeleteGroup && (
+          <button
+            onClick={() => onDeleteGroup(activeGroup.id)}
+            className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors border border-transparent hover:border-rose-200"
+            title={`Delete "${activeGroup.name}" and its expenses`}
+          >
+            <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+            <span className="truncate">Delete Active Group</span>
+          </button>
+        )}
       </div>
 
     </aside>
