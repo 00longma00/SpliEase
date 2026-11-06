@@ -1,0 +1,60 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128;
+    }
+
+    // Health check collection for connection test
+    match /test/{docId} {
+      allow read, write: if true;
+    }
+
+    match /groups/{groupId} {
+      allow read: if true;
+      allow create: if isValidId(groupId)
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.currency is string
+        && request.resource.data.joinCode is string
+        && request.resource.data.members is list;
+      allow update: if request.resource.data.name is string
+        && request.resource.data.members is list;
+      allow delete: if false;
+
+      match /expenses/{expenseId} {
+        allow read: if true;
+        allow create: if isValidId(expenseId)
+          && request.resource.data.amount is number
+          && request.resource.data.amount > 0
+          && request.resource.data.description is string
+          && request.resource.data.splits is list;
+        allow update: if request.resource.data.amount is number
+          && request.resource.data.amount > 0
+          && request.resource.data.description is string;
+        allow delete: if true;
+      }
+
+      match /settlements/{settlementId} {
+        allow read: if true;
+        allow create: if isValidId(settlementId)
+          && request.resource.data.amount is number
+          && request.resource.data.amount > 0
+          && request.resource.data.payerId is string
+          && request.resource.data.receiverId is string;
+        allow update: if false;
+        allow delete: if true;
+      }
+
+      match /activities/{activityId} {
+        allow read: if true;
+        allow create: if isValidId(activityId)
+          && request.resource.data.type is string
+          && request.resource.data.description is string;
+        allow update: if false;
+        allow delete: if false;
+      }
+    }
+  }
+}

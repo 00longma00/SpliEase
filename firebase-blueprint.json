@@ -1,0 +1,202 @@
+{
+  "entities": {
+    "Group": {
+      "title": "Group",
+      "description": "An expense sharing group with member roster and configuration",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the group"
+        },
+        "name": {
+          "type": "string",
+          "description": "Display name of the group"
+        },
+        "category": {
+          "type": "string",
+          "description": "Group category e.g. Trip, Home, Event, Project, Other"
+        },
+        "currency": {
+          "type": "string",
+          "description": "ISO currency code, e.g. USD, EUR, GBP, CAD"
+        },
+        "joinCode": {
+          "type": "string",
+          "description": "6-character uppercase alphanumeric code to join the group"
+        },
+        "members": {
+          "type": "array",
+          "description": "List of group members"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO timestamp of group creation"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp of last group update"
+        }
+      },
+      "required": ["id", "name", "category", "currency", "joinCode", "members", "createdAt"]
+    },
+    "Expense": {
+      "title": "Expense",
+      "description": "An expense logged within a group",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the expense"
+        },
+        "groupId": {
+          "type": "string",
+          "description": "Reference to the containing group"
+        },
+        "description": {
+          "type": "string",
+          "description": "Title or reason for the expense"
+        },
+        "amount": {
+          "type": "number",
+          "description": "Total monetary amount of the expense"
+        },
+        "currency": {
+          "type": "string",
+          "description": "Currency code of the expense"
+        },
+        "category": {
+          "type": "string",
+          "description": "Expense category e.g. Food, Lodging, Transport"
+        },
+        "date": {
+          "type": "string",
+          "description": "Date of the expense in YYYY-MM-DD"
+        },
+        "payerId": {
+          "type": "string",
+          "description": "Member ID of the primary payer"
+        },
+        "paidBy": {
+          "type": "array",
+          "description": "Breakdown of who paid what for multi-payer support"
+        },
+        "splitMethod": {
+          "type": "string",
+          "description": "Split calculation method (equal, exact, percentage, shares)"
+        },
+        "splits": {
+          "type": "array",
+          "description": "Breakdown of each member's owed share"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional notes or receipt details"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO timestamp of record creation"
+        }
+      },
+      "required": ["id", "groupId", "description", "amount", "currency", "category", "date", "payerId", "splitMethod", "splits", "createdAt"]
+    },
+    "Settlement": {
+      "title": "Settlement",
+      "description": "A payment record settling a balance between two group members",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the settlement"
+        },
+        "groupId": {
+          "type": "string",
+          "description": "Reference to the containing group"
+        },
+        "payerId": {
+          "type": "string",
+          "description": "Member ID who paid the debt"
+        },
+        "receiverId": {
+          "type": "string",
+          "description": "Member ID who received the payment"
+        },
+        "amount": {
+          "type": "number",
+          "description": "Amount settled"
+        },
+        "currency": {
+          "type": "string",
+          "description": "Currency code of the settlement"
+        },
+        "date": {
+          "type": "string",
+          "description": "Date of settlement in YYYY-MM-DD"
+        },
+        "paymentMethod": {
+          "type": "string",
+          "description": "Payment instrument used (Venmo, Cash, PayPal, Zelle, Bank, Other)"
+        },
+        "note": {
+          "type": "string",
+          "description": "Optional note"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO timestamp of record creation"
+        }
+      },
+      "required": ["id", "groupId", "payerId", "receiverId", "amount", "currency", "date", "paymentMethod", "createdAt"]
+    },
+    "Activity": {
+      "title": "Activity",
+      "description": "Audit and timeline event for group actions",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the activity"
+        },
+        "groupId": {
+          "type": "string",
+          "description": "Reference to the containing group"
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of event e.g. expense_added, expense_deleted, member_joined, settlement"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human readable event summary"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "ISO timestamp of the event"
+        },
+        "actorName": {
+          "type": "string",
+          "description": "Name of the person who initiated the event"
+        }
+      },
+      "required": ["id", "groupId", "type", "description", "timestamp", "actorName"]
+    }
+  },
+  "firestore": {
+    "/groups/{groupId}": {
+      "schema": "Group",
+      "description": "Expense sharing groups accessible via join code or direct link"
+    },
+    "/groups/{groupId}/expenses/{expenseId}": {
+      "schema": "Expense",
+      "description": "Expenses logged inside a group"
+    },
+    "/groups/{groupId}/settlements/{settlementId}": {
+      "schema": "Settlement",
+      "description": "Settlements logged inside a group"
+    },
+    "/groups/{groupId}/activities/{activityId}": {
+      "schema": "Activity",
+      "description": "Activity timeline events inside a group"
+    }
+  }
+}

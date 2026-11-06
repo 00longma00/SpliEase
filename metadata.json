@@ -1,0 +1,6 @@
+{
+  "name": "FairShare - Group Expense Splitter & Settlement",
+  "description": "Splitwise-style group expense management: split bills equally or custom, simplify debts, settle balances, and invite friends with instant join codes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
