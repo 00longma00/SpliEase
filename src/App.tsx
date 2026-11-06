@@ -344,6 +344,31 @@ export default function App() {
     cloudSync.addActivity(newGroup.id, newActivity).catch(console.error);
   };
 
+  const handleDeleteGroup = (groupId: string) => {
+    const targetGroup = state.groups.find((g) => g.id === groupId);
+    if (!targetGroup) return;
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete the group "${targetGroup.name}"?\n\nThis will remove all associated expenses and settlements.`
+    );
+    if (!confirmed) return;
+
+    const remainingGroups = state.groups.filter((g) => g.id !== groupId);
+    const nextActiveId = remainingGroups[0]?.id || null;
+
+    updateState((prev) => ({
+      ...prev,
+      groups: remainingGroups,
+      activeGroupId: nextActiveId,
+      expenses: prev.expenses.filter((e) => e.groupId !== groupId),
+      settlements: prev.settlements.filter((s) => s.groupId !== groupId),
+      activities: prev.activities.filter((a) => a.groupId !== groupId),
+    }));
+
+    // Persist deletion to Firestore
+    cloudSync.deleteGroup(groupId).catch(console.error);
+  };
+
   const handleOpenSettleWithPair = (payerId: string, receiverId: string, amount: number) => {
     setSettlePayerId(payerId);
     setSettleReceiverId(receiverId);
@@ -417,6 +442,7 @@ export default function App() {
                   setPrefilledJoinCode(activeGroup.joinCode);
                   setIsJoinGroupOpen(true);
                 }}
+                onDeleteGroup={handleDeleteGroup}
               />
 
               {/* Navigation Tab Bar */}

@@ -9,7 +9,8 @@ import {
   Home, 
   Heart, 
   Briefcase, 
-  Tag
+  Tag,
+  Trash2
 } from 'lucide-react';
 import { Group } from '../types/index.ts';
 import { formatCurrency } from '../utils/splitLogic.ts';
@@ -21,6 +22,7 @@ interface GroupHeaderProps {
   onOpenAddExpense: () => void;
   onOpenSettleUp: () => void;
   onOpenInviteModal: () => void;
+  onDeleteGroup: (groupId: string) => void;
 }
 
 export const GroupHeader: React.FC<GroupHeaderProps> = ({
@@ -30,6 +32,7 @@ export const GroupHeader: React.FC<GroupHeaderProps> = ({
   onOpenAddExpense,
   onOpenSettleUp,
   onOpenInviteModal,
+  onDeleteGroup,
 }) => {
   const [copiedCode, setCopiedCode] = useState(false);
 
@@ -84,38 +87,51 @@ export const GroupHeader: React.FC<GroupHeaderProps> = ({
             )}
           </div>
 
-          {/* Quick Invite Box with 6-char Join Code */}
-          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl p-2 sm:px-3 shrink-0">
-            <div className="text-left">
-              <span className="text-[10px] uppercase tracking-wider font-bold text-slate-600 block">
-                Join Code
-              </span>
-              <span className="text-sm font-mono font-bold tracking-wider text-slate-900">
-                {group.joinCode}
-              </span>
+          {/* Quick Actions & Invite Box */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Quick Invite Box with 6-char Join Code */}
+            <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl p-2 sm:px-3">
+              <div className="text-left">
+                <span className="text-[10px] uppercase tracking-wider font-bold text-slate-600 block">
+                  Join Code
+                </span>
+                <span className="text-sm font-mono font-bold tracking-wider text-slate-900">
+                  {group.joinCode}
+                </span>
+              </div>
+
+              <button
+                onClick={handleCopyCode}
+                className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-200/60 rounded-lg transition-colors"
+                title="Copy 6-digit Join Code"
+                aria-label="Copy 6-digit Join Code"
+              >
+                {copiedCode ? (
+                  <Check className="w-4 h-4 text-emerald-600" />
+                ) : (
+                  <Copy className="w-4 h-4" />
+                )}
+              </button>
+
+              <div className="w-[1px] h-6 bg-slate-200" />
+
+              <button
+                onClick={onOpenInviteModal}
+                className="flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 px-2 py-1.5 rounded-lg transition-colors"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                <span>Invite link</span>
+              </button>
             </div>
 
+            {/* Delete Group Action */}
             <button
-              onClick={handleCopyCode}
-              className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-200/60 rounded-lg transition-colors"
-              title="Copy 6-digit Join Code"
-              aria-label="Copy 6-digit Join Code"
+              onClick={() => onDeleteGroup(group.id)}
+              className="p-2.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-xl transition-all"
+              title="Delete group"
+              aria-label="Delete this group"
             >
-              {copiedCode ? (
-                <Check className="w-4 h-4 text-emerald-600" />
-              ) : (
-                <Copy className="w-4 h-4" />
-              )}
-            </button>
-
-            <div className="w-[1px] h-6 bg-slate-200" />
-
-            <button
-              onClick={onOpenInviteModal}
-              className="flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 px-2 py-1.5 rounded-lg transition-colors"
-            >
-              <Share2 className="w-3.5 h-3.5" />
-              <span>Invite link</span>
+              <Trash2 className="w-4 h-4" />
             </button>
           </div>
 

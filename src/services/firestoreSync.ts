@@ -243,6 +243,15 @@ export class FirestoreSyncService {
     }
   }
 
+  public async deleteGroup(groupId: string): Promise<void> {
+    const path = `groups/${groupId}`;
+    try {
+      await deleteDoc(doc(db, 'groups', groupId));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, path);
+    }
+  }
+
   public async updateGroupMembers(group: Group, newMembers: Member[]): Promise<void> {
     const path = `groups/${group.id}`;
     try {

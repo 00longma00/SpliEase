@@ -21,7 +21,7 @@ service cloud.firestore {
         && request.resource.data.members is list;
       allow update: if request.resource.data.name is string
         && request.resource.data.members is list;
-      allow delete: if false;
+      allow delete: if true;
 
       match /expenses/{expenseId} {
         allow read: if true;
