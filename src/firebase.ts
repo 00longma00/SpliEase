@@ -4,20 +4,37 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, signInAnonymously } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
-import firebaseConfig from '../firebase-applet-config.json';
+import rawConfig from '../firebase-applet-config.json';
+
+// Merged configuration: prioritize VITE_FIREBASE_* environment variables,
+// falling back to local firebase-applet-config.json for AI Studio dev environment.
+const env = (typeof import.meta !== 'undefined' && import.meta.env) || (typeof process !== 'undefined' && process.env) || {};
+const configData = (rawConfig as Record<string, string>) || {};
+
+const firebaseConfig = {
+  apiKey: env.VITE_FIREBASE_API_KEY || configData.apiKey || '',
+  authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || configData.authDomain || '',
+  projectId: env.VITE_FIREBASE_PROJECT_ID || configData.projectId || '',
+  storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || configData.storageBucket || '',
+  messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || configData.messagingSenderId || '',
+  appId: env.VITE_FIREBASE_APP_ID || configData.appId || '',
+  firestoreDatabaseId: env.VITE_FIREBASE_FIRESTORE_DATABASE_ID || configData.firestoreDatabaseId || '',
+};
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 export const auth = getAuth(app);
 
-// Use named database ID if provisioned
+// Use named database ID if provisioned (CRITICAL: Required for named multi-tenant databases)
 export const db = firebaseConfig.firestoreDatabaseId
   ? getFirestore(app, firebaseConfig.firestoreDatabaseId)
   : getFirestore(app);
 
-// Auto sign-in anonymously so requests carry valid auth context
-signInAnonymously(auth).catch((err) => {
-  console.warn('Anonymous sign-in note:', err);
-});
+// Auto sign-in anonymously if enabled in Firebase console (silent fallback if disabled)
+if (firebaseConfig.apiKey && !firebaseConfig.apiKey.includes('YOUR_')) {
+  signInAnonymously(auth).catch(() => {
+    // Anonymous auth provider is optional; Firestore rules permit group operations directly
+  });
+}
 
 export enum OperationType {
   CREATE = 'create',

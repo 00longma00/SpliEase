@@ -1,15 +1,22 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
+import fs from 'fs';
 import path from 'path';
 import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
+  const hasAppletConfig = fs.existsSync(path.resolve('./firebase-applet-config.json'));
+
   return {
     base: './',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
         '@': path.resolve('.'),
+        ...(!hasAppletConfig ? {
+          '../firebase-applet-config.json': path.resolve('./firebase-applet-config.example.json'),
+          './firebase-applet-config.json': path.resolve('./firebase-applet-config.example.json'),
+        } : {}),
       },
     },
     server: {

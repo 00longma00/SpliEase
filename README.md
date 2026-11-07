@@ -56,7 +56,10 @@ Open your terminal in this project root directory and run:
 # Initialize git if not already initialized
 git init
 
-# Stage all files
+# Ensure firebase-applet-config.json and sensitive files are ignored (already in .gitignore)
+git status
+
+# Stage files (.gitignore ensures firebase-applet-config.json is not tracked)
 git add .
 
 # Create the initial commit
@@ -71,6 +74,69 @@ git remote add origin https://github.com/YOUR_USERNAME/fairshare-splitwise-app.g
 # Push to GitHub
 git push -u origin main
 ```
+
+---
+
+## 🔒 Resolving Secret Exposure & GitHub Security Alerts
+
+If GitHub Secret Scanning or GitGuardian reported an alert such as:
+> *"Review secret detected in firebase-applet-config.json#L4 • commit 0d4e67d"*
+> *"Anyone with read access can view exposed secrets. Consider rotating and revoking each valid secret."*
+
+Follow these steps to completely resolve and secure your repository:
+
+### 1. Remove the tracked config file from Git repository
+If `firebase-applet-config.json` was committed to git in an earlier commit, untrack it while keeping the local file for development:
+
+```bash
+# Untrack firebase-applet-config.json from git index
+git rm --cached firebase-applet-config.json
+
+# Commit the removal
+git commit -m "fix(security): untrack firebase-applet-config.json and rely on .env"
+
+# Push changes to your GitHub remote
+git push origin main
+```
+
+*(Note: `.gitignore` has now been updated so `firebase-applet-config.json` and `*.local` will never be staged or committed again).*
+
+### 2. Purge the secret from Git history (Optional for Public Repos)
+If your repository is public and you want to scrub commit `0d4e67d` from git history completely, use `git-filter-repo` or BFG:
+
+```bash
+# Using git-filter-repo (recommended)
+pip install git-filter-repo
+git filter-repo --path firebase-applet-config.json --invert-paths
+git push origin --force --all
+```
+
+### 3. Rotate & Revoke the Exposed Google API Key
+1. Go to the [Google Cloud Console Credentials](https://console.cloud.google.com/apis/credentials) for your project.
+2. Under **API Keys**, locate the key flagged in the alert (`AIzaSy...`).
+3. Click **Regenerate key** (or create a new API key).
+4. **Revoke/Delete** the old key after replacing it with the new key.
+5. In your project, create a `.env.local` file (which is gitignored) with your new key:
+   ```bash
+   VITE_FIREBASE_API_KEY="YOUR_NEW_ROTATED_KEY"
+   ```
+
+### 4. Apply API Key Restrictions (Critical Defense-in-Depth)
+Firebase web API keys are client-facing identifiers. To protect them against unauthorized usage:
+1. In [Google Cloud Console Credentials](https://console.cloud.google.com/apis/credentials), click edit on your API Key.
+2. Under **Application restrictions**, select **Websites** (HTTP referrers) and restrict to your domains (e.g. `https://your-username.github.io/*`, `http://localhost:*`, etc.).
+3. Under **API restrictions**, select **Restrict key** and select only the APIs your app needs:
+   - **Cloud Firestore API**
+   - **Identity Toolkit API** (Firebase Auth)
+   - **Token Service API**
+4. Save the restrictions. Now, even if the key is scanned in client bundles, it cannot be abused for unauthorized Google Cloud services.
+
+### 5. Close the GitHub Secret Scanning Alert
+1. In your GitHub repository, click on the **Security** tab.
+2. Under **Vulnerability alerts**, select **Secret scanning**.
+3. Click on the alert for the Google API Key.
+4. Click **Close as** -> select **Revoked** (if you rotated/deleted the key in GCP) or **False positive** / **Used in tests** (if restricted to client Firebase SDK).
+
 
 ---
 

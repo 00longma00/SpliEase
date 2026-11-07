@@ -133,11 +133,55 @@ git push -u origin main`;
             </div>
           </div>
 
-          {/* Step 3: 1-Click Hosting */}
+          {/* Step 3: Security & GitHub Secret Scanner Resolution */}
+          <div className="space-y-3 pt-2 border-t border-slate-100">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                <span className="w-5 h-5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold flex items-center justify-center">
+                  🔒
+                </span>
+                Fix GitHub Secret Scanning Alert (Google API Key)
+              </span>
+              <button
+                onClick={() => copyToClipboard(`git rm --cached firebase-applet-config.json\ngit commit -m "fix(security): untrack firebase-applet-config.json"\ngit push origin main`, 3)}
+                className="text-[11px] font-semibold text-slate-700 hover:text-slate-900 inline-flex items-center gap-1 bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded-md transition-colors"
+              >
+                {copiedStep === 3 ? (
+                  <>
+                    <Check className="w-3 h-3 text-emerald-600" />
+                    <span>Copied Fix!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3 h-3" />
+                    <span>Copy Fix</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            <div className="p-3 bg-amber-50/70 border border-amber-200 rounded-xl space-y-2 text-xs text-amber-950">
+              <p className="text-[11px] leading-relaxed text-amber-900">
+                If GitHub flagged a <strong>"Google API Key"</strong> in <code>firebase-applet-config.json</code>, run these commands in your repository to untrack the file from git:
+              </p>
+              <div className="bg-slate-900 text-slate-100 p-2.5 rounded-lg font-mono text-[11px] overflow-x-auto">
+                <pre className="whitespace-pre-wrap">{`git rm --cached firebase-applet-config.json
+git commit -m "fix(security): untrack firebase-applet-config.json"
+git push origin main`}</pre>
+              </div>
+              <ul className="text-[11px] space-y-1 list-disc list-inside text-amber-900 pt-1">
+                <li><strong>Rotate & Revoke:</strong> In <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noreferrer" className="underline font-semibold hover:text-amber-950">Google Cloud Credentials</a>, regenerate/delete the exposed key.</li>
+                <li><strong>Restrict Key:</strong> Set HTTP Referrers to your domain and restrict API scope to Firestore & Auth.</li>
+                <li><strong>Resolve Alert:</strong> In GitHub repo &gt; <em>Security</em> &gt; <em>Secret scanning</em>, close alert as <em>Revoked</em>.</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Step 4: 1-Click Hosting */}
           <div className="space-y-2 pt-2 border-t border-slate-100">
             <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
               <span className="w-5 h-5 rounded-full bg-slate-100 text-slate-800 text-[10px] font-bold flex items-center justify-center">
-                3
+                4
               </span>
               Free 1-Click Live Hosting Options
             </span>
