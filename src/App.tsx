@@ -35,13 +35,16 @@ import { SettleUpModal } from './components/SettleUpModal.tsx';
 import { JoinGroupModal } from './components/JoinGroupModal.tsx';
 import { CreateGroupModal } from './components/CreateGroupModal.tsx';
 import { GitHubModal } from './components/GitHubModal.tsx';
+import { BottomNav } from './components/BottomNav.tsx';
+import { MobileDrawer } from './components/MobileDrawer.tsx';
 
 export default function App() {
   const [state, setState] = useState<AppState>(() => loadAppState());
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('connecting');
   const [activeTab, setActiveTab] = useState<'expenses' | 'balances' | 'activity'>('expenses');
 
-  // Modals state
+  // Modals & Drawer state
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
   const [isSettleUpOpen, setIsSettleUpOpen] = useState(false);
   const [isJoinGroupOpen, setIsJoinGroupOpen] = useState(false);
@@ -400,6 +403,7 @@ export default function App() {
         }}
         onOpenCreateGroup={() => setIsCreateGroupOpen(true)}
         onOpenGitHubModal={() => setIsGitHubOpen(true)}
+        onOpenMobileDrawer={() => setIsMobileDrawerOpen(true)}
       />
 
       {/* Main Workspace Frame */}
@@ -423,8 +427,8 @@ export default function App() {
           />
         </div>
 
-        {/* Content Viewport */}
-        <main className="flex-1 min-w-0 flex flex-col">
+        {/* Content Viewport with mobile bottom bar clearance */}
+        <main className="flex-1 min-w-0 flex flex-col pb-24 lg:pb-0">
           {activeGroup ? (
             <>
               {/* Group Header Banner with global metrics */}
@@ -446,9 +450,9 @@ export default function App() {
                 onDeleteGroup={handleDeleteGroup}
               />
 
-              {/* Navigation Tab Bar */}
-              <div className="bg-white border-b border-slate-200 px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center gap-6">
+              {/* Navigation Tab Bar (Desktop/Tablet) */}
+              <div className="hidden sm:block bg-white border-b border-slate-200 px-4 sm:px-6 lg:px-8 overflow-x-auto no-scrollbar">
+                <div className="flex items-center gap-6 min-w-max">
                   <button
                     onClick={() => setActiveTab('expenses')}
                     className={`flex items-center gap-2 py-3.5 text-xs font-bold border-b-2 transition-colors whitespace-nowrap ${
@@ -491,7 +495,7 @@ export default function App() {
               </div>
 
               {/* Tab Views */}
-              <div className="p-4 sm:p-6 lg:p-8 flex-1">
+              <div className="p-3 sm:p-6 lg:p-8 flex-1">
                 {activeTab === 'expenses' && (
                   <ExpenseList
                     group={activeGroup}
@@ -585,6 +589,35 @@ export default function App() {
         isOpen={isGitHubOpen}
         onClose={() => setIsGitHubOpen(false)}
       />
+
+      {/* Slide-out Mobile Group Switcher & Ledger Drawer */}
+      <MobileDrawer
+        isOpen={isMobileDrawerOpen}
+        onClose={() => setIsMobileDrawerOpen(false)}
+        groups={state.groups}
+        activeGroup={activeGroup}
+        onSelectGroup={handleSelectGroup}
+        state={state}
+        onOpenCreateGroup={() => setIsCreateGroupOpen(true)}
+        onOpenJoinModal={() => {
+          setPrefilledJoinCode('');
+          setIsJoinGroupOpen(true);
+        }}
+        onOpenGitHubModal={() => setIsGitHubOpen(true)}
+        onResetData={handleResetData}
+        onDeleteGroup={handleDeleteGroup}
+      />
+
+      {/* Fixed Bottom Navigation Bar for Mobile */}
+      {activeGroup && (
+        <BottomNav
+          activeTab={activeTab}
+          onSelectTab={setActiveTab}
+          onOpenGroupsDrawer={() => setIsMobileDrawerOpen(true)}
+          onOpenAddExpense={() => setIsAddExpenseOpen(true)}
+          expenseCount={activeExpenses.length}
+        />
+      )}
 
     </div>
   );

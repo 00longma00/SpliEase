@@ -120,7 +120,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
   return (
     <div className="space-y-4">
       {/* Controls: Search, Tab filter & Category Filter */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 bg-white p-2.5 sm:p-3 rounded-xl border border-slate-200">
         
         {/* Search */}
         <div className="relative flex-1">
@@ -134,12 +134,12 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5 sm:pb-0">
           {/* Tabs: All / Expenses / Settlements */}
-          <div className="flex items-center p-0.5 bg-slate-100 rounded-lg text-xs font-semibold">
+          <div className="flex items-center p-0.5 bg-slate-100 rounded-lg text-xs font-semibold shrink-0">
             <button
               onClick={() => setActiveTab('all')}
-              className={`px-2.5 py-1 rounded-md transition-colors ${
+              className={`px-2.5 py-1.5 rounded-md transition-colors min-h-[32px] ${
                 activeTab === 'all'
                   ? 'bg-white text-slate-900 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -149,7 +149,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
             </button>
             <button
               onClick={() => setActiveTab('expenses')}
-              className={`px-2.5 py-1 rounded-md transition-colors ${
+              className={`px-2.5 py-1.5 rounded-md transition-colors min-h-[32px] ${
                 activeTab === 'expenses'
                   ? 'bg-white text-slate-900 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -159,7 +159,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
             </button>
             <button
               onClick={() => setActiveTab('settlements')}
-              className={`px-2.5 py-1 rounded-md transition-colors ${
+              className={`px-2.5 py-1.5 rounded-md transition-colors min-h-[32px] ${
                 activeTab === 'settlements'
                   ? 'bg-white text-slate-900 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -174,7 +174,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
             aria-label="Filter by category"
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 shrink-0 min-h-[32px]"
           >
             <option value="all">All Categories</option>
             <option value="food">Food & Dining</option>
@@ -235,27 +235,27 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                 {/* Main Row */}
                 <div 
                   onClick={() => setExpandedId(isExpanded ? null : exp.id)}
-                  className="p-4 flex items-center justify-between gap-4 cursor-pointer select-none"
+                  className="p-3 sm:p-4 flex items-center justify-between gap-2.5 sm:gap-4 cursor-pointer select-none"
                 >
-                  <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                  <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
                     {/* Category Icon */}
-                    <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
                       {getCategoryIcon(exp.category)}
                     </div>
 
                     {/* Description and Payer */}
                     <div className="min-w-0 flex-1">
-                      <h4 className="text-sm font-semibold text-slate-900 truncate">
+                      <h4 className="text-xs sm:text-sm font-semibold text-slate-900 truncate">
                         {exp.description}
                       </h4>
-                      <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-0.5 overflow-hidden">
+                      <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-slate-500 mt-0.5 overflow-hidden">
                         <span className="shrink-0">{exp.date}</span>
                         <span aria-hidden="true" className="shrink-0">·</span>
                         <span className="truncate">
                           {isMultiPayer ? (
-                            `${exp.paidBy.length} people paid ${formatCurrency(exp.amount, exp.currency)}`
+                            `${exp.paidBy.length} people paid`
                           ) : (
-                            `${mainPayer.name} paid ${formatCurrency(exp.amount, exp.currency)}`
+                            `${mainPayer.name} paid`
                           )}
                         </span>
                       </div>
@@ -263,17 +263,17 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                   </div>
 
                   {/* Objective Global Amount & Split Breakdown */}
-                  <div className="flex items-center gap-4 shrink-0 text-right">
+                  <div className="flex items-center gap-2 sm:gap-4 shrink-0 text-right">
                     <div>
-                      <span className="text-xs font-mono font-bold block leading-tight text-slate-900 tabular-nums">
+                      <span className="text-xs sm:text-sm font-mono font-bold block leading-tight text-slate-900 tabular-nums">
                         {formatCurrency(exp.amount, exp.currency)}
                       </span>
-                      <span className="text-[11px] text-slate-500 block">
-                        {exp.splits.length} members · {exp.splitMethod}
+                      <span className="text-[10px] sm:text-[11px] text-slate-500 block truncate max-w-[85px] sm:max-w-none">
+                        {exp.splits.length} {exp.splits.length === 1 ? 'member' : 'members'}
                       </span>
                     </div>
 
-                    <div className="text-slate-400">
+                    <div className="text-slate-400 p-1 min-h-[36px] min-w-[36px] flex items-center justify-center">
                       {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </div>
                   </div>
@@ -281,28 +281,28 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
 
                 {/* Expanded Details */}
                 {isExpanded && (
-                  <div className="px-4 pb-4 pt-1 border-t border-slate-100 bg-slate-50/50">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                  <div className="px-3 sm:px-4 pb-3.5 sm:pb-4 pt-1 border-t border-slate-100 bg-slate-50/50">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mt-2">
                       
                       {/* Left: Who Paid */}
                       <div className="space-y-1.5">
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
+                        <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
                           Paid by
                         </span>
                         {exp.paidBy.map((p) => {
                           const m = getMember(p.memberId);
                           return (
                             <div key={p.memberId} className="flex items-center justify-between text-xs py-1">
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 min-w-0">
                                 <div 
-                                  className="w-4 h-4 rounded-full text-[9px] font-bold text-white flex items-center justify-center"
+                                  className="w-4 h-4 rounded-full text-[9px] font-bold text-white flex items-center justify-center shrink-0"
                                   style={{ backgroundColor: m.avatarColor }}
                                 >
                                   {m.name.charAt(0)}
                                 </div>
-                                <span className="font-medium text-slate-700">{m.name}</span>
+                                <span className="font-medium text-slate-700 truncate">{m.name}</span>
                               </div>
-                              <span className="font-mono font-semibold text-slate-800 tabular-nums">
+                              <span className="font-mono font-semibold text-slate-800 tabular-nums shrink-0 ml-2">
                                 {formatCurrency(p.amount, exp.currency)}
                               </span>
                             </div>
@@ -312,29 +312,29 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
 
                       {/* Right: Split Breakdown */}
                       <div className="space-y-1.5">
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
+                        <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
                           Split Breakdown ({exp.splitMethod})
                         </span>
                         {exp.splits.map((s) => {
                           const m = getMember(s.memberId);
                           return (
                             <div key={s.memberId} className="flex items-center justify-between text-xs py-1">
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 min-w-0">
                                 <div 
-                                  className="w-4 h-4 rounded-full text-[9px] font-bold text-white flex items-center justify-center"
+                                  className="w-4 h-4 rounded-full text-[9px] font-bold text-white flex items-center justify-center shrink-0"
                                   style={{ backgroundColor: m.avatarColor }}
                                 >
                                   {m.name.charAt(0)}
                                 </div>
-                                <span className="text-slate-700">{m.name}</span>
+                                <span className="text-slate-700 truncate">{m.name}</span>
                                 {s.percentage !== undefined && (
-                                  <span className="text-[10px] text-slate-400">({s.percentage}%)</span>
+                                  <span className="text-[10px] text-slate-400 shrink-0">({s.percentage}%)</span>
                                 )}
                                 {s.shares !== undefined && (
-                                  <span className="text-[10px] text-slate-400">({s.shares} shares)</span>
+                                  <span className="text-[10px] text-slate-400 shrink-0">({s.shares} sh)</span>
                                 )}
                               </div>
-                              <span className="font-mono font-semibold text-slate-800 tabular-nums">
+                              <span className="font-mono font-semibold text-slate-800 tabular-nums shrink-0 ml-2">
                                 {formatCurrency(s.amount, exp.currency)}
                               </span>
                             </div>
@@ -355,7 +355,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                     <div className="mt-3 pt-3 border-t border-slate-200 flex justify-end items-center gap-2">
                       <button
                         onClick={() => onDeleteExpense(exp.id)}
-                        className="flex items-center gap-1 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 px-2.5 py-1.5 rounded-lg transition-colors"
+                        className="flex items-center gap-1.5 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 px-3 py-2 rounded-xl transition-colors min-h-[44px]"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                         <span>Delete Expense</span>
@@ -374,22 +374,22 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
             return (
               <div
                 key={set.id}
-                className="bg-emerald-50/50 rounded-xl border border-emerald-200/80 p-3.5 flex items-center justify-between gap-4 transition-colors"
+                className="bg-emerald-50/50 rounded-xl border border-emerald-200/80 p-3 sm:p-3.5 flex items-center justify-between gap-3 transition-colors"
               >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
                     <ArrowRightLeft className="w-4 h-4" />
                   </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5 flex-wrap text-xs">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1 flex-wrap text-xs">
                       <span className="font-bold text-slate-900">{payer.name}</span>
                       <span className="text-slate-500">paid</span>
                       <span className="font-bold text-slate-900">{receiver.name}</span>
-                      <span className="font-mono font-bold text-emerald-700 tabular-nums">
+                      <span className="font-mono font-bold text-emerald-700 tabular-nums ml-1">
                         {formatCurrency(set.amount, set.currency)}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
+                    <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-slate-500 mt-0.5 truncate">
                       <span>{set.date}</span>
                       <span aria-hidden="true">·</span>
                       <span className="capitalize">{set.paymentMethod}</span>
@@ -403,14 +403,14 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-1 shrink-0">
                   <button
                     onClick={() => onDeleteSettlement(set.id)}
-                    className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-white rounded-lg transition-colors"
+                    className="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-white rounded-xl transition-colors"
                     title="Delete payment"
                     aria-label="Delete settlement payment"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>

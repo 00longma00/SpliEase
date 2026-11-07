@@ -59,13 +59,13 @@ export const GroupHeader: React.FC<GroupHeaderProps> = ({
 
   return (
     <div className="bg-white border-b border-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-5">
         
         {/* Top line: Name, category, and Join code */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
           
-          <div>
-            <div className="flex items-center gap-2 mb-1">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
               <span className="flex items-center gap-1 text-xs font-semibold text-slate-600 capitalize">
                 {getCategoryIcon(group.category)}
                 <span>{group.category} Group</span>
@@ -76,7 +76,7 @@ export const GroupHeader: React.FC<GroupHeaderProps> = ({
               </span>
             </div>
 
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 break-words">
               {group.name}
             </h1>
             
@@ -88,21 +88,21 @@ export const GroupHeader: React.FC<GroupHeaderProps> = ({
           </div>
 
           {/* Quick Actions & Invite Box */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap shrink-0">
             {/* Quick Invite Box with 6-char Join Code */}
-            <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl p-2 sm:px-3">
-              <div className="text-left">
-                <span className="text-[10px] uppercase tracking-wider font-bold text-slate-600 block">
+            <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-50 border border-slate-200 rounded-xl p-1.5 sm:p-2 sm:px-3">
+              <div className="text-left pl-1">
+                <span className="text-[9px] uppercase tracking-wider font-bold text-slate-500 block leading-tight">
                   Join Code
                 </span>
-                <span className="text-sm font-mono font-bold tracking-wider text-slate-900">
+                <span className="text-xs sm:text-sm font-mono font-bold tracking-wider text-slate-900">
                   {group.joinCode}
                 </span>
               </div>
 
               <button
                 onClick={handleCopyCode}
-                className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-200/60 rounded-lg transition-colors"
+                className="min-h-[40px] min-w-[40px] flex items-center justify-center text-slate-500 hover:text-slate-800 hover:bg-slate-200/60 rounded-lg transition-colors"
                 title="Copy 6-digit Join Code"
                 aria-label="Copy 6-digit Join Code"
               >
@@ -113,42 +113,45 @@ export const GroupHeader: React.FC<GroupHeaderProps> = ({
                 )}
               </button>
 
-              <div className="w-[1px] h-6 bg-slate-200" />
+              <div className="w-[1px] h-5 bg-slate-200" />
 
               <button
                 onClick={onOpenInviteModal}
-                className="flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 px-2 py-1.5 rounded-lg transition-colors"
+                className="flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 px-2 py-1.5 rounded-lg transition-colors min-h-[40px]"
               >
                 <Share2 className="w-3.5 h-3.5" />
-                <span>Invite link</span>
+                <span className="hidden xs:inline">Invite link</span>
+                <span className="xs:hidden">Share</span>
               </button>
             </div>
 
             {/* Delete Group Action */}
             <button
               onClick={() => onDeleteGroup(group.id)}
-              className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-all shadow-2xs"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 text-xs font-semibold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-all shadow-2xs min-h-[40px]"
               title="Delete this group and its expenses"
               aria-label="Delete this group"
             >
               <Trash2 className="w-3.5 h-3.5" />
-              <span>Delete Group</span>
+              <span className="hidden sm:inline">Delete Group</span>
             </button>
           </div>
 
         </div>
 
         {/* Second row: Members roster & Global Group Metrics */}
-        <div className="mt-5 pt-4 border-t border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="mt-4 pt-3.5 border-t border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
           
           {/* Members list */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-slate-500 mr-1">Members ({group.members.length}):</span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-semibold text-slate-500 mr-1">
+              Members ({group.members.length}):
+            </span>
             <div className="flex -space-x-1.5 overflow-hidden py-0.5">
               {group.members.map((member) => (
                 <div
                   key={member.id}
-                  className="w-7 h-7 rounded-full border-2 border-white flex items-center justify-center text-[11px] font-bold text-white shadow-xs cursor-default"
+                  className="w-7 h-7 rounded-full border-2 border-white flex items-center justify-center text-[11px] font-bold text-white shadow-xs cursor-default shrink-0"
                   style={{ backgroundColor: member.avatarColor }}
                   title={member.name}
                 >
@@ -159,32 +162,32 @@ export const GroupHeader: React.FC<GroupHeaderProps> = ({
 
             <button
               onClick={onOpenInviteModal}
-              className="text-xs font-semibold text-slate-600 hover:text-emerald-600 ml-1.5 py-1 px-2 rounded-md hover:bg-slate-100 transition-colors"
+              className="text-xs font-semibold text-slate-600 hover:text-emerald-600 ml-1 py-1 px-2 rounded-md hover:bg-slate-100 transition-colors min-h-[36px] flex items-center"
             >
               + Add member
             </button>
           </div>
 
-          {/* Global Group Metrics */}
-          <div className="flex items-center gap-4 sm:gap-6">
+          {/* Global Group Metrics (Responsive Grid on Mobile) */}
+          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2.5 sm:gap-6 w-full md:w-auto">
             
             {/* Total group spend */}
-            <div className="text-left sm:text-right">
-              <span className="text-[11px] font-medium text-slate-500 block leading-tight">
+            <div className="bg-slate-50 sm:bg-transparent p-2.5 sm:p-0 rounded-xl border border-slate-100 sm:border-0 text-left sm:text-right">
+              <span className="text-[10px] sm:text-[11px] font-medium text-slate-500 block leading-tight">
                 Total group spend
               </span>
-              <span className="text-sm font-bold text-slate-900 tabular-nums">
+              <span className="text-xs sm:text-sm font-bold text-slate-900 tabular-nums">
                 {formatCurrency(totalSpent, group.currency)}
               </span>
             </div>
 
             {/* Total to settle in group */}
-            <div className="text-left sm:text-right border-l sm:border-l-0 sm:border-r border-slate-200 pl-4 sm:pl-0 sm:pr-6">
-              <span className="text-[11px] font-medium text-slate-500 block leading-tight">
+            <div className="bg-slate-50 sm:bg-transparent p-2.5 sm:p-0 rounded-xl border border-slate-100 sm:border-0 text-left sm:text-right sm:border-l sm:border-slate-200 sm:pl-4">
+              <span className="text-[10px] sm:text-[11px] font-medium text-slate-500 block leading-tight">
                 Unsettled balance
               </span>
               <span 
-                className={`text-sm font-mono font-bold tabular-nums ${
+                className={`text-xs sm:text-sm font-mono font-bold tabular-nums ${
                   totalToSettle > 0.005 ? 'text-amber-600' : 'text-emerald-600'
                 }`}
               >
@@ -195,7 +198,7 @@ export const GroupHeader: React.FC<GroupHeaderProps> = ({
             {/* Settle Up Button */}
             <button
               onClick={onOpenSettleUp}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-200 transition-colors shrink-0"
+              className="col-span-2 sm:col-span-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-1.5 text-xs font-semibold text-slate-800 bg-emerald-50 hover:bg-emerald-100 sm:bg-slate-100 sm:hover:bg-slate-200 rounded-xl border border-emerald-200 sm:border-slate-200 transition-colors shrink-0 min-h-[44px] sm:min-h-[36px]"
             >
               <ArrowRightLeft className="w-3.5 h-3.5 text-emerald-600" />
               <span>Settle up</span>

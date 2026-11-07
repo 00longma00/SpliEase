@@ -11,7 +11,7 @@ import {
   deleteDoc, 
   writeBatch 
 } from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType } from '../firebase.ts';
+import { db, handleFirestoreError, OperationType, isFirebaseConfigured } from '../firebase.ts';
 import { ActivityItem, Expense, Group, Member, Settlement } from '../types/index.ts';
 import { 
   INITIAL_GROUPS, 
@@ -27,7 +27,7 @@ export class FirestoreSyncService {
   private unsubscribeGroups: (() => void) | null = null;
   private activeSubUnsubscribes: Map<string, (() => void)[]> = new Map();
   private syncStatusListeners: Set<(status: SyncStatus) => void> = new Set();
-  private currentStatus: SyncStatus = 'connecting';
+  private currentStatus: SyncStatus = isFirebaseConfigured ? 'connecting' : 'offline';
 
   public static getInstance(): FirestoreSyncService {
     if (!FirestoreSyncService.instance) {
@@ -55,6 +55,11 @@ export class FirestoreSyncService {
    * Seeds demo data if Firestore collection is empty
    */
   public async seedInitialDataIfEmpty(): Promise<void> {
+    if (!isFirebaseConfigured) {
+      this.setStatus('offline');
+      return;
+    }
+
     const path = 'groups';
     try {
       const snap = await getDocs(collection(db, path));
@@ -107,6 +112,11 @@ export class FirestoreSyncService {
     onGroupsUpdated: (groups: Group[]) => void,
     onError?: (err: unknown) => void
   ): () => void {
+    if (!isFirebaseConfigured) {
+      this.setStatus('offline');
+      return () => {};
+    }
+
     const path = 'groups';
     this.setStatus('connecting');
 
@@ -148,6 +158,9 @@ export class FirestoreSyncService {
       onActivitiesUpdated: (groupId: string, activities: ActivityItem[]) => void;
     }
   ): () => void {
+    if (!isFirebaseConfigured) {
+      return () => {};
+    }
     // Clear previous group listeners not in current list
     for (const [gid, unsubs] of this.activeSubUnsubscribes.entries()) {
       if (!groupIds.includes(gid)) {
@@ -231,6 +244,7 @@ export class FirestoreSyncService {
   // --- Real-time Cloud Mutations ---
 
   public async createGroup(group: Group): Promise<void> {
+    if (!isFirebaseConfigured) return;
     const path = `groups/${group.id}`;
     try {
       await setDoc(doc(db, 'groups', group.id), {
@@ -244,6 +258,7 @@ export class FirestoreSyncService {
   }
 
   public async deleteGroup(groupId: string): Promise<void> {
+    if (!isFirebaseConfigured) return;
     const path = `groups/${groupId}`;
     try {
       await deleteDoc(doc(db, 'groups', groupId));
@@ -253,6 +268,7 @@ export class FirestoreSyncService {
   }
 
   public async updateGroupMembers(group: Group, newMembers: Member[]): Promise<void> {
+    if (!isFirebaseConfigured) return;
     const path = `groups/${group.id}`;
     try {
       await setDoc(
@@ -270,6 +286,7 @@ export class FirestoreSyncService {
   }
 
   public async addExpense(groupId: string, expense: Expense): Promise<void> {
+    if (!isFirebaseConfigured) return;
     const path = `groups/${groupId}/expenses/${expense.id}`;
     try {
       await setDoc(doc(db, 'groups', groupId, 'expenses', expense.id), expense);
@@ -279,6 +296,7 @@ export class FirestoreSyncService {
   }
 
   public async deleteExpense(groupId: string, expenseId: string): Promise<void> {
+    if (!isFirebaseConfigured) return;
     const path = `groups/${groupId}/expenses/${expenseId}`;
     try {
       await deleteDoc(doc(db, 'groups', groupId, 'expenses', expenseId));
@@ -288,6 +306,7 @@ export class FirestoreSyncService {
   }
 
   public async addSettlement(groupId: string, settlement: Settlement): Promise<void> {
+    if (!isFirebaseConfigured) return;
     const path = `groups/${groupId}/settlements/${settlement.id}`;
     try {
       await setDoc(doc(db, 'groups', groupId, 'settlements', settlement.id), settlement);
@@ -297,6 +316,7 @@ export class FirestoreSyncService {
   }
 
   public async deleteSettlement(groupId: string, settlementId: string): Promise<void> {
+    if (!isFirebaseConfigured) return;
     const path = `groups/${groupId}/settlements/${settlementId}`;
     try {
       await deleteDoc(doc(db, 'groups', groupId, 'settlements', settlementId));
@@ -306,6 +326,7 @@ export class FirestoreSyncService {
   }
 
   public async addActivity(groupId: string, activity: ActivityItem): Promise<void> {
+    if (!isFirebaseConfigured) return;
     const path = `groups/${groupId}/activities/${activity.id}`;
     try {
       await setDoc(doc(db, 'groups', groupId, 'activities', activity.id), {

@@ -21,16 +21,25 @@ const firebaseConfig = {
   firestoreDatabaseId: env.VITE_FIREBASE_FIRESTORE_DATABASE_ID || configData.firestoreDatabaseId || '',
 };
 
+export const isFirebaseConfigured = Boolean(
+  firebaseConfig.apiKey &&
+  firebaseConfig.projectId &&
+  !firebaseConfig.apiKey.includes('YOUR_') &&
+  !firebaseConfig.apiKey.includes('DemoDefault') &&
+  !firebaseConfig.projectId.includes('your-firebase') &&
+  !firebaseConfig.projectId.includes('demo')
+);
+
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 export const auth = getAuth(app);
 
 // Use named database ID if provisioned (CRITICAL: Required for named multi-tenant databases)
-export const db = firebaseConfig.firestoreDatabaseId
+export const db = firebaseConfig.firestoreDatabaseId && firebaseConfig.firestoreDatabaseId !== '(default)'
   ? getFirestore(app, firebaseConfig.firestoreDatabaseId)
   : getFirestore(app);
 
 // Auto sign-in anonymously if enabled in Firebase console (silent fallback if disabled)
-if (firebaseConfig.apiKey && !firebaseConfig.apiKey.includes('YOUR_')) {
+if (isFirebaseConfigured) {
   signInAnonymously(auth).catch(() => {
     // Anonymous auth provider is optional; Firestore rules permit group operations directly
   });
@@ -85,6 +94,7 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
 
 // Test initial connection as required by Firebase integration skill
 export async function testFirestoreConnection(): Promise<boolean> {
+  if (!isFirebaseConfigured) return false;
   try {
     await getDocFromServer(doc(db, 'test', 'connection'));
     return true;
@@ -95,4 +105,6 @@ export async function testFirestoreConnection(): Promise<boolean> {
     return false;
   }
 }
-testFirestoreConnection().catch(() => {});
+if (isFirebaseConfigured) {
+  testFirestoreConnection().catch(() => {});
+}

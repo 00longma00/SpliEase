@@ -125,18 +125,22 @@ export const JoinGroupModal: React.FC<JoinGroupModalProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden my-8">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div className="bg-white rounded-t-3xl sm:rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden max-h-[92vh] sm:max-h-none flex flex-col animate-in slide-in-from-bottom duration-200 sm:animate-none">
         
+        {/* Mobile Grab Handle */}
+        <div className="w-10 h-1 bg-slate-300 rounded-full mx-auto mt-2.5 mb-0.5 sm:hidden" />
+
         {/* Header with Tabs */}
-        <div className="px-6 pt-5 pb-3 border-b border-slate-200">
+        <div className="px-5 sm:px-6 pt-4 sm:pt-5 pb-3 border-b border-slate-200 shrink-0">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-base font-bold text-slate-900">
               Group Access & Invitations
             </h3>
             <button
               onClick={onClose}
-              className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition-colors"
+              className="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 transition-colors"
+              aria-label="Close group access modal"
             >
               <X className="w-5 h-5" />
             </button>
@@ -170,7 +174,7 @@ export const JoinGroupModal: React.FC<JoinGroupModalProps> = ({
 
         {/* Tab 1: Join with Code */}
         {activeTab === 'join' && (
-          <form onSubmit={handleJoinSubmit} className="p-6 space-y-4">
+          <form onSubmit={handleJoinSubmit} className="p-4 sm:p-6 space-y-4 overflow-y-auto">
             {errorMessage && (
               <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2.5 text-xs text-rose-800">
                 <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
@@ -221,16 +225,17 @@ export const JoinGroupModal: React.FC<JoinGroupModalProps> = ({
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   Choose Avatar Color
                 </label>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   {colorOptions.map((c) => (
                     <button
                       key={c}
                       type="button"
                       onClick={() => setAvatarColor(c)}
-                      className={`w-6 h-6 rounded-full transition-transform ${
+                      className={`w-7 h-7 rounded-full transition-transform min-h-[28px] min-w-[28px] ${
                         avatarColor === c ? 'scale-125 ring-2 ring-slate-800 ring-offset-1' : ''
                       }`}
                       style={{ backgroundColor: c }}
+                      aria-label={`Select avatar color ${c}`}
                     />
                   ))}
                 </div>
@@ -242,13 +247,13 @@ export const JoinGroupModal: React.FC<JoinGroupModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors"
+                className="min-h-[44px] px-4 py-2 text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 rounded-xl shadow-xs transition-colors"
+                className="min-h-[44px] px-5 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 rounded-xl shadow-xs transition-colors flex items-center justify-center"
               >
                 Join Group Now
               </button>
@@ -258,24 +263,24 @@ export const JoinGroupModal: React.FC<JoinGroupModalProps> = ({
 
         {/* Tab 2: Invite Friends */}
         {activeTab === 'invite' && (
-          <div className="p-6 space-y-5">
+          <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto">
             {targetGroup ? (
               <>
-                <div className="text-center p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+                <div className="text-center p-3.5 sm:p-4 bg-slate-50 border border-slate-200 rounded-2xl">
                   <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
                     Join Code for {targetGroup.name}
                   </span>
-                  <div className="font-mono text-3xl font-extrabold tracking-widest text-slate-900 my-2">
+                  <div className="font-mono text-2xl sm:text-3xl font-extrabold tracking-widest text-slate-900 my-1.5 sm:my-2">
                     {targetGroup.joinCode}
                   </div>
                   <button
                     onClick={handleCopyCode}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-lg shadow-2xs transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl shadow-2xs transition-colors min-h-[40px]"
                   >
                     {copiedCode ? (
                       <>
                         <Check className="w-3.5 h-3.5 text-emerald-600" />
-                        <span className="text-emerald-700">Code Copied!</span>
+                        <span className="text-emerald-700 font-bold">Code Copied!</span>
                       </>
                     ) : (
                       <>
@@ -296,11 +301,11 @@ export const JoinGroupModal: React.FC<JoinGroupModalProps> = ({
                       type="text"
                       readOnly
                       value={shareUrl}
-                      className="w-full text-xs font-mono bg-slate-50 text-slate-600 px-3 py-2 rounded-xl border border-slate-200 select-all"
+                      className="w-full text-xs font-mono bg-slate-50 text-slate-600 px-3 py-2.5 rounded-xl border border-slate-200 select-all"
                     />
                     <button
                       onClick={handleCopyLink}
-                      className="px-3 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-xl shrink-0 transition-colors"
+                      className="px-3.5 py-2.5 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-xl shrink-0 transition-colors min-h-[40px]"
                     >
                       {copiedLink ? 'Copied!' : 'Copy Link'}
                     </button>
@@ -329,7 +334,7 @@ export const JoinGroupModal: React.FC<JoinGroupModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-xl transition-colors"
+                className="min-h-[44px] px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-xl transition-colors"
               >
                 Close
               </button>
