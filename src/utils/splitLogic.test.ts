@@ -7,8 +7,25 @@ import {
   calculateNetBalances,
   simplifyDebts,
   roundCents,
+  formatCurrency,
 } from './splitLogic.ts';
 import { Expense, Member, Settlement } from '../types/index.ts';
+
+test('roundCents rounds numbers to two decimal places without floating precision issues', () => {
+  assert.equal(roundCents(10.123), 10.12);
+  assert.equal(roundCents(10.128), 10.13);
+  assert.equal(roundCents(0.004), 0);
+  assert.equal(roundCents(0.005), 0.01);
+});
+
+test('formatCurrency formats amounts with proper symbol and negative signs', () => {
+  assert.equal(formatCurrency(1250.5, 'USD'), '$1,250.50');
+  assert.equal(formatCurrency(-42.75, 'USD'), '-$42.75');
+  assert.equal(formatCurrency(0, 'USD'), '$0.00');
+  assert.equal(formatCurrency(99.99, 'EUR'), '€99.99');
+  assert.equal(formatCurrency(500, 'GBP'), '£500.00');
+  assert.equal(formatCurrency(1000, 'JPY'), '¥1,000.00');
+});
 
 test('calculateEqualSplits distributes cents evenly without drift', () => {
   const members = ['m1', 'm2', 'm3'];
@@ -21,6 +38,21 @@ test('calculateEqualSplits distributes cents evenly without drift', () => {
 
   const total = splits.reduce((sum, s) => sum + s.amount, 0);
   assert.equal(roundCents(total), 100.00);
+});
+
+test('calculateEqualSplits handles single member and zero/negative amounts', () => {
+  const single = calculateEqualSplits(50, ['only_me']);
+  assert.equal(single.length, 1);
+  assert.equal(single[0].amount, 50);
+
+  const emptyMembers = calculateEqualSplits(100, []);
+  assert.equal(emptyMembers.length, 0);
+
+  const zeroAmount = calculateEqualSplits(0, ['m1', 'm2']);
+  assert.equal(zeroAmount.length, 0);
+
+  const negAmount = calculateEqualSplits(-20, ['m1', 'm2']);
+  assert.equal(negAmount.length, 0);
 });
 
 test('calculatePercentageSplits calculates and validates correctly', () => {
@@ -45,6 +77,13 @@ test('calculateSharesSplits divides according to ratio', () => {
   assert.equal(res.splits.find((s) => s.memberId === 'm1')?.amount, 60);
   assert.equal(res.splits.find((s) => s.memberId === 'm2')?.amount, 30);
   assert.equal(res.splits.find((s) => s.memberId === 'm3')?.amount, 30);
+});
+
+test('calculateSharesSplits handles zero total shares safely', () => {
+  const res = calculateSharesSplits(100, { m1: 0, m2: 0 });
+  assert.equal(res.totalShares, 0);
+  assert.equal(res.splits[0].amount, 0);
+  assert.equal(res.splits[1].amount, 0);
 });
 
 test('calculateNetBalances calculates correct balances for expenses and settlements', () => {
@@ -117,4 +156,40 @@ test('simplifyDebts simplifies multi-hop transitive debts', () => {
   assert.equal(simplified[0].from, 'alice');
   assert.equal(simplified[0].to, 'charlie');
   assert.equal(simplified[0].amount, 50);
+});
+
+test('simplifyDebts resolves circular debts to zero transactions', () => {
+  // Circular debt: Alice owes Bob $30, Bob owes Charlie $30, Charlie owes Alice $30.
+  // Net balances for all three are 0.
+  const netBalances = {
+    alice: 0,
+    bob: 0,
+    charlie: 0,
+  };
+
+  const simplified = simplifyDebts(netBalances);
+  assert.equal(simplified.length, 0);
+});
+
+test('simplifyDebts handles complex 4-person debt with minimal payments', () => {
+  // Balances:
+  // personA: -60 (owes 60)
+  // personB: -40 (owes 40)
+  // personC: +70 (is owed 70)
+  // personD: +30 (is owed 30)
+  const netBalances = {
+    personA: -60,
+    personB: -40,
+    personC: 70,
+    personD: 30,
+  };
+
+  const simplified = simplifyDebts(netBalances);
+
+  // Total amount transferred must equal total debt (100)
+  const totalTransferred = simplified.reduce((sum, d) => sum + d.amount, 0);
+  assert.equal(roundCents(totalTransferred), 100);
+
+  // Maximum transactions should be at most 3 (N - 1)
+  assert.ok(simplified.length <= 3);
 });

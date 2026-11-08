@@ -37,6 +37,15 @@ import { CreateGroupModal } from './components/CreateGroupModal.tsx';
 import { GitHubModal } from './components/GitHubModal.tsx';
 import { BottomNav } from './components/BottomNav.tsx';
 import { MobileDrawer } from './components/MobileDrawer.tsx';
+import { DeleteGroupModal } from './components/DeleteGroupModal.tsx';
+import { ResetConfirmModal } from './components/ResetConfirmModal.tsx';
+import {
+  deleteGroupReducer,
+  createGroupReducer,
+  joinGroupReducer,
+  deleteExpenseReducer,
+  deleteSettlementReducer,
+} from './utils/groupActions.ts';
 
 export default function App() {
   const [state, setState] = useState<AppState>(() => loadAppState());
@@ -51,6 +60,10 @@ export default function App() {
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
   const [isGitHubOpen, setIsGitHubOpen] = useState(false);
   const [prefilledJoinCode, setPrefilledJoinCode] = useState('');
+
+  // Delete group & Reset confirmation dialog states (In-app accessible modals replacing window.confirm)
+  const [groupPendingDelete, setGroupPendingDelete] = useState<Group | null>(null);
+  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
 
   // Settle up initial values (when clicking "Settle this" on a debt card)
   const [settlePayerId, setSettlePayerId] = useState<string | undefined>();
@@ -350,23 +363,12 @@ export default function App() {
   const handleDeleteGroup = (groupId: string) => {
     const targetGroup = state.groups.find((g) => g.id === groupId);
     if (!targetGroup) return;
+    setGroupPendingDelete(targetGroup);
+  };
 
-    const confirmed = window.confirm(
-      `Are you sure you want to delete the group "${targetGroup.name}"?\n\nThis will remove all associated expenses and settlements.`
-    );
-    if (!confirmed) return;
-
-    const remainingGroups = state.groups.filter((g) => g.id !== groupId);
-    const nextActiveId = remainingGroups[0]?.id || null;
-
-    updateState((prev) => ({
-      ...prev,
-      groups: remainingGroups,
-      activeGroupId: nextActiveId,
-      expenses: prev.expenses.filter((e) => e.groupId !== groupId),
-      settlements: prev.settlements.filter((s) => s.groupId !== groupId),
-      activities: prev.activities.filter((a) => a.groupId !== groupId),
-    }));
+  const handleConfirmDeleteGroup = (groupId: string) => {
+    updateState((prev) => deleteGroupReducer(prev, groupId));
+    setGroupPendingDelete(null);
 
     // Persist deletion to Firestore
     cloudSync.deleteGroup(groupId).catch(console.error);
@@ -380,11 +382,14 @@ export default function App() {
   };
 
   const handleResetData = () => {
-    if (window.confirm('Reset all demo data back to default state?')) {
-      const fresh = resetAppState();
-      setState(fresh);
-      cloudSync.seedInitialDataIfEmpty().catch(console.error);
-    }
+    setIsResetConfirmOpen(true);
+  };
+
+  const handleConfirmResetData = () => {
+    const fresh = resetAppState();
+    setState(fresh);
+    setIsResetConfirmOpen(false);
+    cloudSync.seedInitialDataIfEmpty().catch(console.error);
   };
 
   return (
@@ -588,6 +593,38 @@ export default function App() {
       <GitHubModal
         isOpen={isGitHubOpen}
         onClose={() => setIsGitHubOpen(false)}
+      />
+
+      {/* Delete Group Confirmation Modal (Safe In-App Modal replacing blocked window.confirm) */}
+      <DeleteGroupModal
+        isOpen={Boolean(groupPendingDelete)}
+        group={groupPendingDelete}
+        expensesCount={
+          groupPendingDelete
+            ? state.expenses.filter((e) => e.groupId === groupPendingDelete.id).length
+            : 0
+        }
+        totalSpent={
+          groupPendingDelete
+            ? state.expenses
+                .filter((e) => e.groupId === groupPendingDelete.id)
+                .reduce((sum, e) => sum + e.amount, 0)
+            : 0
+        }
+        settlementsCount={
+          groupPendingDelete
+            ? state.settlements.filter((s) => s.groupId === groupPendingDelete.id).length
+            : 0
+        }
+        onClose={() => setGroupPendingDelete(null)}
+        onConfirm={handleConfirmDeleteGroup}
+      />
+
+      {/* Reset Demo Data Confirmation Modal */}
+      <ResetConfirmModal
+        isOpen={isResetConfirmOpen}
+        onClose={() => setIsResetConfirmOpen(false)}
+        onConfirm={handleConfirmResetData}
       />
 
       {/* Slide-out Mobile Group Switcher & Ledger Drawer */}

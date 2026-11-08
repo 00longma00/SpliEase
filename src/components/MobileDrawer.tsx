@@ -151,13 +151,22 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
               .reduce((s, e) => s + e.amount, 0);
 
             return (
-              <button
+              <div
                 key={group.id}
+                role="button"
+                tabIndex={0}
                 onClick={() => {
                   onSelectGroup(group.id);
                   onClose();
                 }}
-                className={`w-full text-left p-3 rounded-xl transition-all flex items-center justify-between gap-3 min-h-[52px] ${
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onSelectGroup(group.id);
+                    onClose();
+                  }
+                }}
+                className={`w-full text-left p-3 rounded-xl transition-all flex items-center justify-between gap-3 min-h-[52px] cursor-pointer ${
                   isActive
                     ? 'bg-emerald-50 text-emerald-950 font-bold border border-emerald-200 shadow-2xs'
                     : 'text-slate-700 hover:bg-slate-50 border border-slate-100 hover:border-slate-200'
@@ -182,15 +191,33 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
                   </div>
                 </div>
 
-                <div className="text-right shrink-0">
-                  <span className="font-mono text-xs font-bold text-slate-800 tabular-nums block">
-                    {formatCurrency(groupSpend, group.currency)}
-                  </span>
-                  <span className="text-[9px] text-slate-400 block uppercase">
-                    spend
-                  </span>
+                <div className="flex items-center gap-2 shrink-0">
+                  <div className="text-right">
+                    <span className="font-mono text-xs font-bold text-slate-800 tabular-nums block">
+                      {formatCurrency(groupSpend, group.currency)}
+                    </span>
+                    <span className="text-[9px] text-slate-400 block uppercase">
+                      spend
+                    </span>
+                  </div>
+
+                  {onDeleteGroup && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onClose();
+                        onDeleteGroup(group.id);
+                      }}
+                      className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                      title={`Delete "${group.name}"`}
+                      aria-label={`Delete "${group.name}"`}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
-              </button>
+              </div>
             );
           })}
 

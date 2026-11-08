@@ -128,9 +128,8 @@ export class FirestoreSyncService {
         snapshot.forEach((docSnap) => {
           groups.push(docSnap.data() as Group);
         });
-        if (groups.length > 0) {
-          onGroupsUpdated(groups);
-        }
+        // Always notify subscribers of the latest groups list, even if empty
+        onGroupsUpdated(groups);
       },
       (error) => {
         this.setStatus('error');
@@ -261,7 +260,31 @@ export class FirestoreSyncService {
     if (!isFirebaseConfigured) return;
     const path = `groups/${groupId}`;
     try {
+      // 1. Delete group document
       await deleteDoc(doc(db, 'groups', groupId));
+
+      // 2. Cascade delete subcollections (expenses & settlements)
+      try {
+        const expSnap = await getDocs(collection(db, 'groups', groupId, 'expenses'));
+        if (!expSnap.empty) {
+          const batch = writeBatch(db);
+          expSnap.forEach((d) => batch.delete(d.ref));
+          await batch.commit();
+        }
+      } catch {
+        // Non-blocking cleanup
+      }
+
+      try {
+        const setSnap = await getDocs(collection(db, 'groups', groupId, 'settlements'));
+        if (!setSnap.empty) {
+          const batch = writeBatch(db);
+          setSnap.forEach((d) => batch.delete(d.ref));
+          await batch.commit();
+        }
+      } catch {
+        // Non-blocking cleanup
+      }
     } catch (error) {
       handleFirestoreError(error, OperationType.DELETE, path);
     }

@@ -107,20 +107,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
             .reduce((s, e) => s + e.amount, 0);
 
           return (
-            <button
+            <div
               key={group.id}
+              role="button"
+              tabIndex={0}
               onClick={() => onSelectGroup(group.id)}
-              className={`w-full text-left p-2.5 rounded-xl transition-all flex items-center justify-between gap-2 text-xs ${
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onSelectGroup(group.id);
+                }
+              }}
+              className={`group/item w-full text-left p-2.5 rounded-xl transition-all flex items-center justify-between gap-2 text-xs cursor-pointer select-none ${
                 isActive
                   ? 'bg-emerald-50 text-emerald-950 font-bold border border-emerald-200 shadow-2xs'
                   : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-transparent'
               }`}
             >
-              <div className="flex items-center gap-2.5 min-w-0">
+              <div className="flex items-center gap-2.5 min-w-0 flex-1">
                 <div className="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0">
                   {getCategoryIcon(group.category)}
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <span className="block truncate font-semibold">
                     {group.name}
                   </span>
@@ -130,16 +138,33 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
               </div>
 
-              {/* Group total spend */}
-              <div className="text-right shrink-0">
-                <span className="font-mono text-[11px] font-bold text-slate-700 tabular-nums block">
-                  {formatCurrency(groupSpend, group.currency)}
-                </span>
-                <span className="text-[9px] text-slate-400 block uppercase">
-                  total
-                </span>
+              {/* Group total spend & quick delete */}
+              <div className="flex items-center gap-1.5 shrink-0">
+                <div className="text-right">
+                  <span className="font-mono text-[11px] font-bold text-slate-700 tabular-nums block">
+                    {formatCurrency(groupSpend, group.currency)}
+                  </span>
+                  <span className="text-[9px] text-slate-400 block uppercase">
+                    total
+                  </span>
+                </div>
+
+                {onDeleteGroup && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteGroup(group.id);
+                    }}
+                    className="opacity-0 group-hover/item:opacity-100 focus:opacity-100 p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-all ml-0.5"
+                    title={`Delete "${group.name}"`}
+                    aria-label={`Delete "${group.name}"`}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                )}
               </div>
-            </button>
+            </div>
           );
         })}
 
